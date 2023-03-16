@@ -1,0 +1,10 @@
+bot:
+  token: ${BOT_TOKEN}
+
+api:
+  host: http://127.0.0.1:8080/
+  base: /api/v1/
+
+spring:
+  main:
+    web-application-type: NONE

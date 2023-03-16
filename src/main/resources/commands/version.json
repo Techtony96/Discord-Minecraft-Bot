@@ -1,0 +1,5 @@
+{
+  "name": "version",
+  "description": "Get the current version of the bot",
+  "default_member_permissions": "8"
+}

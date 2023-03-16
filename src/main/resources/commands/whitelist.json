@@ -1,0 +1,34 @@
+{
+  "name": "whitelist",
+  "description": "Manage the Minecraft server's whitelist",
+  "options": [
+    {
+      "type": 1,
+      "name": "add",
+      "description": "Add a new player to the whitelist",
+      "options": [
+        {
+          "type": 3,
+          "name": "name",
+          "description": "The name of the minecraft player",
+          "required": false,
+          "max_length": 16,
+          "min_length": 3
+        },
+        {
+          "type": 3,
+          "name": "uuid",
+          "description": "The UUID of the minecraft player, in format 00000000-0000-0000-0000-000000000000",
+          "required": false,
+          "max_length": 36,
+          "min_length": 36
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "name": "list",
+      "description": "List the players currently on the whitelist"
+    }
+  ]
+}

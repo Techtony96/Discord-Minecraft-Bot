@@ -1,5 +1,6 @@
 bot:
   token: ${BOT_TOKEN}
+  db_filename: minecraft
 
 api:
   host: http://127.0.0.1:8080/
@@ -8,3 +9,8 @@ api:
 spring:
   main:
     web-application-type: NONE
+  datasource:
+    url: jdbc:h2:file:./${bot.db_filename}
+  jpa:
+    hibernate:
+      ddl-auto: update

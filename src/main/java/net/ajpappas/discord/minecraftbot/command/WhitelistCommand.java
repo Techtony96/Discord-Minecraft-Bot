@@ -5,6 +5,7 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import net.ajpappas.discord.common.command.SlashCommand;
 import net.ajpappas.discord.common.exception.UserException;
+import net.ajpappas.discord.minecraftbot.dao.PlayerDao;
 import net.ajpappas.discord.minecraftbot.model.entity.Player;
 import net.ajpappas.discord.minecraftbot.model.request.WhitelistRequest;
 import net.ajpappas.discord.minecraftbot.model.response.WhitelistResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -28,6 +30,9 @@ public class WhitelistCommand implements SlashCommand {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private PlayerDao playerDao;
 
     @Value("${api.host}/${api.base}/")
     private String apiUrl;
@@ -96,10 +101,40 @@ public class WhitelistCommand implements SlashCommand {
         if (name != null && uuid != null)
             return Mono.error(new UserException("Only supply either name OR uuid."));
 
+        Long userId = event.getInteraction().getUser().getId().asLong();
 
-        Player player = new Player(name, uuid);
-        WhitelistRequest request = new WhitelistRequest(WhitelistRequest.Action.ADD, player);
+        // Ensure the discord user is registered to the given MC player
+        Optional<Player> playerLookup = playerDao.findById(userId);
+        if (playerLookup.isPresent()) {
+            if (playerLookup.get().getUuid() != null) {
+                if (uuid == null) {
+                    return event.reply("You registered with your MC UUID, use that instead.").withEphemeral(true);
+                } else if (uuid.equals(playerLookup.get().getUuid())) {
+                    // Add to whitelist
+                    WhitelistRequest request = new WhitelistRequest(WhitelistRequest.Action.ADD, uuid);
+                    return makeRequest(request).flatMap(response -> event.reply(response.userMessage()).withEphemeral(true));
+                } else {
+                    return event.reply("Given UUID does not match registered UUID. Ask an admin for assistance.").withEphemeral(true);
+                }
+            } else if (playerLookup.get().getUsername() != null) {
+                if (name == null) {
+                    return event.reply("You registered with your MC username, use that instead.").withEphemeral(true);
+                } else if (name.equalsIgnoreCase(playerLookup.get().getUsername())) {
+                    // Add to whitelist
+                    WhitelistRequest request = new WhitelistRequest(WhitelistRequest.Action.ADD, name);
+                    return makeRequest(request).flatMap(response -> event.reply(response.userMessage()).withEphemeral(true));
+                } else {
+                    return event.reply("Given MC username does not match registered MC username. Ask an admin for assistance.").withEphemeral(true);
+                }
+            } else {
+                // Somehow in DB without username or uuid, fall through to default register/whitelist
+            }
+        } else {
+            // Never registered and saved in DB, fall through to default register/whitelist
+        }
 
+        playerDao.save(new Player(userId, name, uuid));
+        WhitelistRequest request = new WhitelistRequest(WhitelistRequest.Action.ADD, uuid != null ? uuid : name);
         return makeRequest(request).flatMap(response -> event.reply(response.userMessage()).withEphemeral(true));
     }
 

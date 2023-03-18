@@ -1,0 +1,25 @@
+{
+  "name": "database",
+  "description": "Manage the registered users in the database",
+  "default_member_permissions": "0",
+  "options": [
+    {
+      "type": 1,
+      "name": "delete",
+      "description": "Delete a player's record from the database",
+      "options": [
+        {
+          "type": 6,
+          "name": "user",
+          "description": "The user to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "name": "list",
+      "description": "List all stored database records"
+    }
+  ]
+}

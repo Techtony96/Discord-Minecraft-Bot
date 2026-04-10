@@ -11,7 +11,7 @@
     <properties>
         <discord4j.version>3.2.3</discord4j.version>
         <spring.version>3.0.4</spring.version>
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
